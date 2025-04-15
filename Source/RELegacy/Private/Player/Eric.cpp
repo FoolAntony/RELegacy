@@ -9,6 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+
 // Sets default values
 AEric::AEric()
 {
@@ -25,6 +26,8 @@ AEric::AEric()
 
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(CameraBoom);
+
+	GetMesh()->SetGenerateOverlapEvents(true);
 
 
 }
@@ -62,10 +65,14 @@ void AEric::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+
+
 // Called when the game starts or when spawned
 void AEric::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Tags.Add(FName("Player"));
 	
 }
 
