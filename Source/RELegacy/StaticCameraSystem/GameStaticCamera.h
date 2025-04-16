@@ -18,24 +18,49 @@ public:
 
 	AGameStaticCamera();
 
+	virtual void Tick(float DeltaTime) override;
+
 protected:
 
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category = "CameraSystem")
-	bool bDefaultCamera = false;
+
 
 	UFUNCTION()
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY(EditAnywhere, Category = "CameraSystem")
+	bool bDefaultCamera = false;
 	
+	UPROPERTY(VisibleAnywhere, Category = "CameraSystem")
+	bool bIsCameraActive = false;
+
+	UPROPERTY(EditAnywhere, Category = "CameraSystem")
+	bool bTargetOnPlayer = false;
+
+	FORCEINLINE void SetIsCameraActive() { bIsCameraActive = true; }
+	FORCEINLINE void SetIsCameraDisabled() { bIsCameraActive = false; }
+	FORCEINLINE bool GetIsCameraActive() { return bIsCameraActive; }
+
+	/**
 	UFUNCTION()
 	void OnBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	*/
+	void ChangeCurrentCameraView();
 
-	void ChangeCurrentCameraView(AActor* CameraActor);
+	void TargetLockOnPlayer();
+
+	virtual void BecomeViewTarget( APlayerController* PC) override;
+
+	virtual void EndViewTarget( APlayerController* PC) override;
+
+	APlayerController* PlayerController;
 
 private:
 
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* StartTrigger;
-	
+
+
+
 };
