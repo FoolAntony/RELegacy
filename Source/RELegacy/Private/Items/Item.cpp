@@ -2,26 +2,70 @@
 
 
 #include "Items/Item.h"
+#include "Interfaces/PickupInterface.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 AItem::AItem()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
+
+	SetRootComponent(ItemMesh);
+	Sphere->SetupAttachment(GetRootComponent());
+	Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Sphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	Sphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
+	ItemEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Blink Effect"));
+	ItemEffect->SetupAttachment(GetRootComponent());
 
 }
 
-// Called when the game starts or when spawned
-void AItem::BeginPlay()
+void AItem::Interact()
 {
-	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+}
+
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor);
+	if (PickupInterface)
+	{
+		PickupInterface->SetOverlappingItem(this);
+		ItemEffect->Activate();
+	}
+}
+
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor);
+	if (PickupInterface)
+	{
+		PickupInterface->SetOverlappingItem(nullptr);
+		ItemEffect->Deactivate();
+	}
+}
+
+// Called when the game starts or when spawned
+void AItem::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
+	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
+
+	ItemEffect->Deactivate();
 
 }
 

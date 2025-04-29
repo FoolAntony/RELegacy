@@ -5,16 +5,19 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Components/SphereComponent.h"
+#include "Interfaces/PickupInterface.h"
 #include "Eric.generated.h"
 
-class UInputDataConfig;
 class UInputMappingContext;
+class UInputDataConfig;
 class USpringArmComponent;
 class UCameraComponent;
+class USphereComponent;
 
 UCLASS()
 
-class RELEGACY_API AEric : public ACharacter
+class RELEGACY_API AEric : public ACharacter, public IPickupInterface
 {
 	GENERATED_BODY()
 
@@ -32,20 +35,27 @@ protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Interact();
+	virtual void SetOverlappingItem(AItem* Item);
 
 	/**	Enhanced input action variables */
 	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputMappingContext* GContext;
+	TObjectPtr<UInputMappingContext> GContext;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
-	UInputDataConfig* InputActions;
+	TObjectPtr<UInputDataConfig> InputActions;
 
 private:	
 
 	UPROPERTY(VisibleAnywhere)
-	USpringArmComponent* CameraBoom;
+	TObjectPtr<USpringArmComponent> CameraBoom;
 
 	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* PlayerCamera;
+	TObjectPtr<UCameraComponent> PlayerCamera;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USphereComponent>  Sphere;
+
+	UPROPERTY(VisibleInstanceOnly)
+	AItem* OverlappingItem;
 
 };

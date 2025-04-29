@@ -5,6 +5,7 @@
 #include "Player/InputDataConfig.h"
 #include "Components/CapsuleComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Items/Item.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -26,6 +27,9 @@ AEric::AEric()
 
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(CameraBoom);
+
+	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
+	Sphere->SetupAttachment(GetRootComponent());
 
 	GetMesh()->SetGenerateOverlapEvents(true);
 
@@ -59,6 +63,7 @@ void AEric::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 			Input->BindAction(InputActions->MovementAction, ETriggerEvent::Triggered, this, &AEric::Move);
 			Input->BindAction(InputActions->LookAction, ETriggerEvent::Triggered, this, &AEric::Look);
+			Input->BindAction(InputActions->InteractAction, ETriggerEvent::Triggered, this, &AEric::Interact);
 
 		}
 	}
@@ -112,7 +117,17 @@ void AEric::Look(const FInputActionValue& Value)
 
 void AEric::Interact()
 {
+	AItem* InteractableItem = Cast<AItem>(OverlappingItem);
 
+	if (InteractableItem)
+	{
+		InteractableItem->Interact();
+	}
+}
+
+void AEric::SetOverlappingItem(AItem* Item)
+{
+	OverlappingItem = Item;
 }
 
 
