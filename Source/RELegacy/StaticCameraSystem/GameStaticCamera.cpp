@@ -14,6 +14,7 @@ AGameStaticCamera::AGameStaticCamera()
 
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Adding box trigger to a Camera object
 	StartTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Start Trigger"));
 	StartTrigger->SetupAttachment(GetRootComponent());
 
@@ -26,8 +27,10 @@ void AGameStaticCamera::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//if target should be on player and camera is active
 	if (bTargetOnPlayer && GetIsCameraActive())
 	{
+		//Locks target on player
 		TargetLockOnPlayer();
 	}
 }
@@ -37,14 +40,19 @@ void AGameStaticCamera::BeginPlay()
 	Super::BeginPlay();
 
 	StartTrigger->OnComponentBeginOverlap.AddDynamic(this, &AGameStaticCamera::OnBoxOverlap);
+
+	//Get active PlayerController when game starts
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
 	//StartTrigger->OnComponentEndOverlap.AddDynamic(this, &AGameStaticCamera::OnBoxEndOverlap);
 }
 
 void AGameStaticCamera::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	//Checks if overlapping object has Player tag
 	if (OtherActor && OtherActor->ActorHasTag("Player"))
 	{
+		// Changes view if player overlaps
 		ChangeCurrentCameraView();
 	}
 }
@@ -60,18 +68,21 @@ void AGameStaticCamera::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComponent
 
 void AGameStaticCamera::ChangeCurrentCameraView()
 {
-
+	// Changes camera view target to current camera
 	PlayerController->SetViewTargetWithBlend(this);
 }
 
 void AGameStaticCamera::TargetLockOnPlayer()
 {
-
+	// Getting camera world location
 	FVector CameraWorldLocation = GetCameraComponent()->GetComponentLocation();
+	// Getting player world location
 	FVector PlayerLocation = PlayerController->GetPawn()->GetActorLocation();
-
+	
+	// Calculating rotation of the camera depending on player's position
 	FRotator LookRotation = UKismetMathLibrary::FindLookAtRotation(CameraWorldLocation, PlayerLocation);
 
+	//Setting camera component's rotation to a calculated value
 	GetCameraComponent()->SetWorldRotation(LookRotation);
 
 }

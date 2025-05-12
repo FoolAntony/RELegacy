@@ -22,40 +22,92 @@ class RELEGACY_API AEric : public ACharacter, public IPickupInterface
 	GENERATED_BODY()
 
 public:
+	//=====================================
+	// PARAMETERS & VARIABLES
+	//=====================================
+
+	
+	
+	//=====================================
+	//	FUNCTIONS
+	//=====================================
+
 	AEric();
 
 	virtual void Tick(float DeltaTime) override;
 
+	/** Function Part of EnhancedInput System, called to bind functionallity to input*/
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
 
-	virtual void BeginPlay() override;
-
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
-	void Interact();
-	virtual void SetOverlappingItem(AItem* Item);
+	//=====================================
+	// PARAMETERS & VARIABLES
+	//=====================================
 
 	/**	Enhanced input action variables */
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> GContext;
 
+	/** 
+	*	Data Config of Action mappings for Enhanced Input System
+	*	Allows to specify action mappings in a separate data config blueprint and not in the character class directly
+	*/
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EnhancedInput")
 	TObjectPtr<UInputDataConfig> InputActions;
 
+
+	//=====================================
+	//	FUNCTIONS
+	//=====================================
+
+	virtual void BeginPlay() override;
+
+	/** 
+	*	Function moves chatarter in 3D space depending on a certain 2D value.
+	*	@param Value : This is value of WASD (or other specified) movement input in 2D space; 
+	*/
+	void Move(const FInputActionValue& Value);
+
+	/**
+	*	Function moves camera look in 3D space depending on a certain 2D value.
+	*	@param Value : This is value of mouse movement input in 2D space;
+	*/
+	void Look(const FInputActionValue& Value);
+
+	/** Interaction with objects, depends on action mapping input (if button pressed or not) */
+	void Interact();
+
+	/**
+	*	Sets the item that currently overlapes with Sphere component.
+	*	@param Item : Item Actor overlapping with the Sphere component;
+	*/
+	virtual void SetOverlappingItem(AItem* Item);
+
+
 private:	
 
+	//=====================================
+	// PARAMETERS & VARIABLES
+	//=====================================	
+	 
+	/** Camera boom positioning camera behind player character*/
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USpringArmComponent> CameraBoom;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> PlayerCamera;
 
+	/** Sphere collision area*/
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent>  Sphere;
 
 	UPROPERTY(VisibleInstanceOnly)
-	AItem* OverlappingItem;
+	TObjectPtr<AItem> OverlappingItem;
+
+
+	//=====================================
+	//	FUNCTIONS
+	//=====================================
 
 };
